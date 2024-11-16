@@ -10,7 +10,6 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - mvn -s dependency-reduced-pom.xml compile
   post_build:
     commands:
       - echo Build completed on `date`
