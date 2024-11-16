@@ -23,7 +23,7 @@ phases:
       - docker push $REPOSITORY_URI:$IMAGE_TAG
 artifacts:
   files:
-    - target/unicorn-web-project.war
+    - target/app.jar /app.jar
     - Dockerfile
     - buildspec_docker.yml
   discard-paths: no
