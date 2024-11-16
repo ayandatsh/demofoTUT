@@ -1,29 +1,19 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto8
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws --version
-      - REPOSITORY_URI=156041444956.dkr.ecr.eu-west-1.amazonaws.com/hello-server
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+      - echo Initializing environment
   build:
     commands:
       - echo Build started on `date`
-      - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:latest .
-      - docker tag 156041444956.dkr.ecr.eu-west-1.amazonaws.com/hello-server:87473f9
   post_build:
     commands:
       - echo Build completed on `date`
-      - echo Pushing the Docker images...
-      - docker push 156041444956.dkr.ecr.eu-west-1.amazonaws.com/hello-server:87473f9
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
 artifacts:
   files:
     - target/app.jar /app.jar
-    - Dockerfile
-    - buildspec_docker.yml
   discard-paths: no
