@@ -15,5 +15,5 @@ phases:
       - echo Build completed on `date`
 artifacts:
   files:
-    - target/app.jar /app.jar
+    - target/app.jar
   discard-paths: no
