@@ -16,4 +16,6 @@ phases:
 artifacts:
   files:
     - target/app.jar
+    - Makefile
+    - buildspec_docker.yml
   discard-paths: no
