@@ -13,8 +13,10 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
+      - printf '[{"name":"hello-server","imageUri":"%s"}]' 156041444956.dkr.ecr.eu-west-1.amazonaws.com/hello-server:latest > imagedefinitions.json     
 artifacts:
   files:
+    - imagedefinitions.json
     - target/app.jar
     - Makefile
     - buildspec_docker.yml
