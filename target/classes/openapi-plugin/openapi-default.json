@@ -1,0 +1,758 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "paths": {
+    "/api/expenses": {
+      "post": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Create a new expense for a person",
+        "operationId": "createExpense",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewExpenseDTO"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Person not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      },
+      "get": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Find all expenses",
+        "operationId": "findAllExpenses",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/expenses/person/{personId}": {
+      "get": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Find expenses for a person",
+        "operationId": "findExpensesByPerson",
+        "parameters": [
+          {
+            "name": "personId",
+            "in": "path",
+            "description": "The ID of the person",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/expenses/{expenseId}": {
+      "get": {
+        "tags": [
+          "Expenses"
+        ],
+        "summary": "Find an expense by ID",
+        "operationId": "findExpenseById",
+        "parameters": [
+          {
+            "name": "expenseId",
+            "in": "path",
+            "description": "The expense ID",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Expense not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/paymentrequests": {
+      "get": {
+        "tags": [
+          "Payment Requests"
+        ],
+        "summary": "Find all payment requests",
+        "operationId": "findAllPaymentRequests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentRequestDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      },
+      "post": {
+        "tags": [
+          "Payment Requests"
+        ],
+        "summary": "Create a new payment request",
+        "operationId": "createPaymentRequest",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewPaymentRequestDTO"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequestDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Persons or Expense not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/paymentrequests/received/{personId}": {
+      "get": {
+        "tags": [
+          "Payment Requests"
+        ],
+        "summary": "Find payment requests received by a person",
+        "operationId": "findPaymentRequestsReceived",
+        "parameters": [
+          {
+            "name": "personId",
+            "in": "path",
+            "description": "The ID of the person that received payment requests",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentRequestDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Person not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/paymentrequests/sent/{personId}": {
+      "get": {
+        "tags": [
+          "Payment Requests"
+        ],
+        "summary": "Find payment requests sent by a person",
+        "operationId": "findPaymentRequestsSent",
+        "parameters": [
+          {
+            "name": "personId",
+            "in": "path",
+            "description": "The ID of the person that sent payment requests",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentRequestDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Person not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/paymentrequests/{paymentRequestId}": {
+      "get": {
+        "tags": [
+          "Payment Requests"
+        ],
+        "summary": "Get payment request by ID",
+        "operationId": "getPaymentRequestById",
+        "parameters": [
+          {
+            "name": "paymentRequestId",
+            "in": "path",
+            "description": "The payment request ID",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequestDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "PaymentRequest not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      },
+      "delete": {
+        "tags": [
+          "Payment Requests"
+        ],
+        "summary": "Recall an unpaid payment request",
+        "operationId": "recallUnpaidPaymentRequest",
+        "parameters": [
+          {
+            "name": "paymentRequestId",
+            "in": "path",
+            "description": "The payment request ID",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Recalled"
+          },
+          "400": {
+            "description": "Payment Request could not be recalled"
+          },
+          "404": {
+            "description": "Payment Request not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/payments": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Pay a payment request",
+        "operationId": "payPaymentRequest",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewPaymentDTO"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Could not make payment"
+          },
+          "404": {
+            "description": "Person, Expense or Payment Request not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/payments/madeby/{personId}": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Find all payments made by a person",
+        "operationId": "findPaymentsMadeByPerson",
+        "parameters": [
+          {
+            "name": "personId",
+            "in": "path",
+            "description": "The ID of the person",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/people": {
+      "post": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Login to WeShare",
+        "operationId": "login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDTO"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad email address"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/people/{personId}": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Find a person by ID",
+        "operationId": "findPersonById",
+        "parameters": [
+          {
+            "name": "personId",
+            "in": "path",
+            "description": "The ID of the person",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Person not found"
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/people": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "summary": "Find all people that use WeShare",
+        "operationId": "findAllPeople",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Person"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ExpenseDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expenseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "personId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaymentsRequested": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPaymentsReceived": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nettAmount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "amount",
+          "totalPaymentsRequested",
+          "totalPaymentsReceived",
+          "nettAmount"
+        ]
+      },
+      "LoginDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "NewExpenseDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "personId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "NewPaymentDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expenseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paymentRequestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payingPersonId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NewPaymentRequestDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expenseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fromPersonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "toPersonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "amount"
+        ]
+      },
+      "PaymentDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expenseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paymentRequestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payingPersonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "PaymentRequestDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expenseId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fromPersonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "toPersonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "paid": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "amount",
+          "paid"
+        ]
+      },
+      "Person": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
