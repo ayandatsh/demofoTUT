@@ -8,6 +8,7 @@ phases:
   pre_build:
     commands:
       - echo Initializing environment
+      - mvn clean compile test
   build:
     commands:
       - echo Build started on `date`
