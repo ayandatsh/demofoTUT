@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+################################################################################
+#
+#   DESCRIPTION
+#
+################################################################################
+Description: >-
+  ECS Service
+################################################################################
+#
+#   RESOURCES
+#
+################################################################################
+Resources:  
+  rECSService:
+    Type: 'AWS::ECS::Service'
+    Properties:
+      ServiceName: hello-server
+      Cluster: !Sub '{{resolve:ssm:ecs-cluster-arn}}'
+      DesiredCount: 2
+      LaunchType: EC2
+      LoadBalancers:
+        - ContainerName: hello-server
+          ContainerPort: 80
+          TargetGroupArn: !Sub '{{resolve:ssm:targetgroup}}'
+      SchedulingStrategy: REPLICA      
+      HealthCheckGracePeriodSeconds: 8      
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50    
+      TaskDefinition: !Sub '{{resolve:ssm:taskdefinition}}' 
+      
+      

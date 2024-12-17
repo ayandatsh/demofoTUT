@@ -1,0 +1,341 @@
+AWSTemplateFormatVersion: '2010-09-09'
+################################################################################
+#
+#   DESCRIPTION
+#
+################################################################################
+Description: >-
+  EC2 ECS cluster running containers in a private subnet. Supports public facing 
+  load balancers, private internal load balancers, and 
+  both internal and external service discovery namespaces. Two AZs.
+################################################################################
+#
+#   Parameters
+#
+################################################################################
+Parameters:
+  pSourcebranch:
+    Type: String
+    Description: Name of your branch
+
+  pGitHubUsername:
+    Type: String
+    Description: Your GitHub username
+
+  pRepoName:
+    Type: String
+    Description: Name of your repository
+
+  pGithubOAuthToken:
+    Type: String
+    Description: Name og your branch
+
+################################################################################
+#
+#   METADATA
+#   Objects that provide additional information about the template.
+#
+################################################################################
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Operations
+        Parameters:
+          - pSourcebranch
+          - pGitHubUsername
+          - pRepoName
+          - pGithubOAuthToken        
+    ParameterLabels:
+      pSourcebranch:
+        default: BranchName
+      pGitHubUsername:
+        default: Username        
+      pRepoName:
+        default: Repository
+      pGithubOAuthToken:
+        default: OAuthToken  
+################################################################################
+#
+#   RESOURCES
+#
+################################################################################
+Resources:
+  rECRRepor:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: hello-server
+
+  rECRReporParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: ECR Repository
+      Name: ecr-repo-name
+      Type: String
+      Value: !Ref rECRRepor 
+
+  rECSLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/hello-server  
+
+  rTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Name: hello-server
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/hello-server
+          PortMappings:
+            - ContainerPort: 80
+              HostPort: 80
+              Protocol: tcp
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/hello-server
+              awslogs-region: eu-west-1
+              awslogs-stream-prefix: ecs
+      Family: hello-server
+      NetworkMode: bridge
+      Memory: 256    
+      RequiresCompatibilities:
+        - EC2  
+
+  rTaskDefinitionParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: TaskDefinition
+      Name: taskdefinition
+      Type: String
+      Value: !Ref rTaskDefinition         
+
+  rTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: hello-server-tg
+      TargetType: instance
+      HealthCheckIntervalSeconds: 5
+      HealthCheckPath: /ping
+      HealthCheckTimeoutSeconds: 3
+      HealthyThresholdCount: 2
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Sub '{{resolve:ssm:vpc}}'
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: '5'  
+
+  rTargetGroupParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: TargetGroup
+      Name: targetgroup
+      Type: String
+      Value: !Ref rTargetGroup            
+
+  rListenerRule:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref rTargetGroup
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - "/hello/*"
+      ListenerArn: !Sub '{{resolve:ssm:public-lb-listener}}'
+      Priority: 10      
+
+  rCodeBuildLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /codebuild/hello-server
+
+  rCodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+                - codebuild.amazonaws.com
+                - ecs-tasks.amazonaws.com
+                - codeartifact.amazonaws.com
+            Action:
+              - sts:AssumeRole 
+      Description: Permission to execute AWS CodePipeline
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser 
+      Policies:
+        - PolicyName: pipeline-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowS3Actions
+                Effect: 'Allow'
+                Action:
+                  - 'codecommit:UploadArchive'
+                  - 's3:PutObject'
+                  - 's3:GetObject'
+                Resource:
+                  - !Sub 'arn:aws:s3:::${rS3ArtifactBucket}'
+                  - !Sub 'arn:aws:s3:::${rS3ArtifactBucket}/*' 
+              - Sid: AllowCodeBuildActions
+                Effect: 'Allow'
+                Action:
+                  - 'codebuild:StartBuild'
+                  - 'codebuild:BatchGetBuilds'
+                Resource: 
+                  - '*'   
+              - Sid: AllowCodeArtifact
+                Effect: Allow
+                Action:
+                  - 'codeartifact:GetAuthorizationToken'
+                  - 'codeartifact:GetRepositoryEndpoint'
+                  - 'codeartifact:ReadFromRepository'   
+                Resource: '*'
+              - Sid: AllowCodeArtifact2
+                Effect: Allow
+                Action:
+                  - sts:GetServiceBearerToken
+                Resource: '*'  
+              - Sid: AllowCodeDeployActions
+                Effect: 'Allow'
+                Action:
+                  - 'ecs:*'
+                Resource: 
+                  - '*'      
+              - Sid: AllowCWLogsActions
+                Effect: 'Allow'
+                Action:
+                  - 'logs:CreateLogStream'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:PutLogEvents'
+                Resource: 
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:codebuild/hello-server:log-stream:*'
+  
+  rCodeArtifactDomain:
+    Type: AWS::CodeArtifact::Domain
+    Properties: 
+      DomainName: hello-server-domain
+
+  rCodeArtifactUpstreamRepo:
+    Type: AWS::CodeArtifact::Repository
+    Properties:
+      DomainName: !GetAtt rCodeArtifactDomain.Name
+      RepositoryName: hello-server-upstream-repo      
+      ExternalConnections: 
+        - public:maven-central
+
+
+
+  rCodeArtifactRepo:
+    Type: AWS::CodeArtifact::Repository
+    Properties: 
+      DomainName: !GetAtt rCodeArtifactDomain.Name
+      RepositoryName: hello-server-artifact-repo
+      Upstreams: 
+        - !GetAtt rCodeArtifactUpstreamRepo.Name
+                
+
+  rCodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        Type: LINUX_CONTAINER
+        PrivilegedMode: true
+      Name: hello-server-build
+      ServiceRole: !GetAtt rCodePipelineServiceRole.Arn
+      LogsConfig: 
+         CloudWatchLogs: 
+           GroupName: codebuild/hello-server
+           Status : ENABLED 
+      Source:
+        Type: CODEPIPELINE     
+
+  rS3ArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub ${AWS::AccountId}-artifacts-bucket
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'        
+        
+  rCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location: !Ref rS3ArtifactBucket
+        Type: S3
+      Name: hello-server-pipeline
+      RoleArn: !GetAtt rCodePipelineServiceRole.Arn
+      Stages:
+        - Name: Source
+          Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref 'pGitHubUsername'
+                Repo: !Ref pRepoName
+                Branch: !Ref pSourcebranch
+                OAuthToken: !Ref pGithubOAuthToken
+              Name: SourceAction
+              OutputArtifacts:
+                - Name: SourceOutput
+              RunOrder: 1
+                
+        - Name: Build
+          Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref rCodeBuildProject
+              InputArtifacts:
+                - Name: SourceOutput
+              Name: BuildAction
+              OutputArtifacts:
+                - Name: BuildOutput
+        - Name: Deploy
+          Actions:
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: ECS
+              Configuration:
+                ClusterName: !Sub '{{resolve:ssm:ecs-cluster-name}}'
+                ServiceName: hello-server
+              Name: DeployAction
+              InputArtifacts:
+                - Name: BuildOutput                                 
+                  
+################################################################################
+#
+#   OUTPUTS
+#
+################################################################################
+Outputs:
+  ECRRepositoryURI:
+    Value: !GetAtt rECRRepor.RepositoryUri
+    Description: Repository URI
+  TaskDefinition:
+    Value: !Ref rTaskDefinition
+    Description: The created Taskdefinition
+    
