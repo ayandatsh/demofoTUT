@@ -3,17 +3,17 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      # java: corretto8
-      java: openjdk8
+      java: corretto8
   pre_build:
     commands:
       - echo Initializing environment
+      - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain hello-server-domain --domain-owner 518082434600 --region eu-west-1 --query authorizationToken --output text`
       - mvn clean compile test
   build:
     commands:
       - echo Build started on `date`
       - mvn -s settings.xml compile
-      - mvn -Dmaven.test.skip package
+      # - mvn -Dmaven.test.skip package
   post_build:
     commands:
       - echo Build completed on `date`
