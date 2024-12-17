@@ -12,10 +12,12 @@ phases:
   build:
     commands:
       - echo Build started on `date`
+      - mvn -s settings.xml compile
       - mvn -Dmaven.test.skip package
   post_build:
     commands:
       - echo Build completed on `date`
+      - mvn -s settings.xml package
       - printf '[{"name":"server","imageUri":"%s"}]' 156041444956.dkr.ecr.eu-west-1.amazonaws.com/server:latest > imagedefinitions.json     
 artifacts:
   files:
