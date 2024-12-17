@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: corretto8
+      java: corretto17
   pre_build:
     commands:
       - echo Initializing environment
@@ -13,7 +13,6 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn -s settings.xml compile
-      # - mvn -Dmaven.test.skip package
   post_build:
     commands:
       - echo Build completed on `date`
