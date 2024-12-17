@@ -8,7 +8,6 @@ phases:
     commands:
       - echo Initializing environment
       - export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain hello-server-domain --domain-owner 518082434600 --region eu-west-1 --query authorizationToken --output text`
-      - mvn clean compile test
   build:
     commands:
       - echo Build started on `date`
@@ -17,7 +16,7 @@ phases:
     commands:
       - echo Build completed on `date`
       - mvn -s settings.xml package
-      - printf '[{"name":"server","imageUri":"%s"}]' 156041444956.dkr.ecr.eu-west-1.amazonaws.com/server:latest > imagedefinitions.json     
+      - printf '[{"name":"hello-server","imageUri":"%s"}]' 156041444956.dkr.ecr.eu-west-1.amazonaws.com/hello-server:latest > imagedefinitions.json     
 artifacts:
   files:
     - imagedefinitions.json
