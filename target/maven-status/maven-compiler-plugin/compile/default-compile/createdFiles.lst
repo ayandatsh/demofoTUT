@@ -1,5 +1,5 @@
-weshare/server/ServiceRegistry.class
 weshare/api/dto/NewPaymentRequestDTO.class
+weshare/server/ServiceRegistry.class
 weshare/api/ApiHelper.class
 weshare/server/ErrorResponse.class
 json-schemes/index
@@ -21,8 +21,8 @@ weshare/model/Payment.class
 weshare/api/dto/PaymentRequestDTO.class
 weshare/server/WeShareServer$2.class
 weshare/persistence/Persistent.class
-weshare/persistence/DAO.class
 weshare/server/WeShareServer.class
+weshare/persistence/DAO.class
 weshare/model/PaymentRequest.class
 weshare/api/PaymentRequestApi.class
 weshare/persistence/collectionbased/ExpenseDAOImpl.class

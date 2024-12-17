@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: weshare.api.PersonApiTests
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s - in weshare.api.PersonApiTests
