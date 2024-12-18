@@ -253,26 +253,26 @@ Resources:
       Upstreams: 
         - !GetAtt rCodeArtifactUpstreamRepo.Name
 
-  rCodeBuildProject:
+  rCodeBuildProject2:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
-        Type: no_artifacts
+        Type: CODEPIPELINE
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
         Type: LINUX_CONTAINER
         PrivilegedMode: true
-      Name: docker-build
-      EnvironmentVariables:
-        - Name: AWS_DEFAULT_REGION
-          Value: eu-west-1
-        - Name: AWS_ACCOUNT_ID
-          Value: 156041444956
-        - Name: IMAGE_REPO_NAME
-          Value: hello-server
-        - Name: IMAGE_TAG
-          Value: latest       
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: eu-west-1
+          - Name: AWS_ACCOUNT_ID
+            Value: 518082434600
+          - Name: IMAGE_REPO_NAME
+            Value: hello-server
+          - Name: IMAGE_TAG
+            Value: latest
+      Name: docker-build  
       ServiceRole: !GetAtt rCodePipelineServiceRole.Arn
       LogsConfig: 
          CloudWatchLogs: 
@@ -337,7 +337,20 @@ Resources:
               OutputArtifacts:
                 - Name: SourceOutput
               RunOrder: 1
-                
+        - Name: BuildDocker
+          Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref rCodeBuildProject2
+              InputArtifacts:
+                - Name: SourceOutput
+              Name: BuildAction
+              OutputArtifacts:
+                - Name: BuildOutput2                
         - Name: Build
           Actions:
             - ActionTypeId:
