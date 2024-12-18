@@ -86,7 +86,7 @@ Resources:
         - Name: hello-server
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/hello-server
           PortMappings:
-            - ContainerPort: 80
+            - ContainerPort: 5050 
               HostPort: 80
               Protocol: tcp
           Essential: true
