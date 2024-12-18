@@ -21,5 +21,6 @@ artifacts:
   files:
     - imagedefinitions.json
     - target/app.jar
+    - Dockerfile
     - buildspec_docker.yml
   discard-paths: no
