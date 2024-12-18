@@ -16,7 +16,7 @@ phases:
     commands:
       - echo Build completed on `date`
       - mvn -Dmaven.test.skip package
-      - printf '[{"name":"hello-server","imageUri":"%s"}]' 156041444956.dkr.ecr.eu-west-1.amazonaws.com/hello-server:latest > imagedefinitions.json     
+      - printf '[{"name":"hello-server","imageUri":"%s"}]' 518082434600.dkr.ecr.eu-west-1.amazonaws.com/hello-server:latest > imagedefinitions.json     
 artifacts:
   files:
     - imagedefinitions.json
