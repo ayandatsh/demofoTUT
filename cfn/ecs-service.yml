@@ -21,7 +21,7 @@ Resources:
       LaunchType: EC2
       LoadBalancers:
         - ContainerName: hello-server
-          ContainerPort: 80
+          ContainerPort: 5050
           TargetGroupArn: !Sub '{{resolve:ssm:targetgroup}}'
       SchedulingStrategy: REPLICA      
       HealthCheckGracePeriodSeconds: 8      
